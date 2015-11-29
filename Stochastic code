@@ -1,0 +1,282 @@
+library(xlsx)
+
+#  *IID MODEL*
+
+#initialise varaibles
+n<-99
+m<-matrix(0,n,60)
+k<-0
+q<-0
+s<-0
+x<-matrix(0,100,3) 
+
+#generate n call sequences of length 30s in 0.5s intervals
+for (i in 1:n) {
+  m[i,] <- sample(c('k','q', 's'), 60, replace=T, prob=c(0.4921, 0.1064, 0.4015)) #generates a sample from the iid model
+  }
+
+
+#find frequency of each call type at each time step
+for(j in 1:60) 
+{
+  for(i in 1:n)
+  {
+   if(m[i,j]=="k") k<-k+1
+   if(m[i,j]=="q") q<-q+1
+   if(m[i,j]=="s") s<-s+1
+  }
+  x[j,]<-c(k,q,s)
+  k<-0
+  q<-0
+  s<-0
+}
+
+
+write.xlsx(x,"iid2.xlsx") #write data to excel
+
+
+
+
+#2-state model
+
+#define transition matrix:
+S <- matrix(c(0.8412,0.1588,0.0405, 0.9595), #transition matrix
+            nrow=2, ncol=2, byrow=TRUE)
+P<-matrix(c(0.0631, 1, 0.1963, 0, 0.7406, 0), nrow=3, ncol=2, byrow=TRUE) #call probabilities
+
+
+x<-matrix(0,60,3) #initialise variables
+n<-99 #number of call sequences generated
+m<-matrix(0,n,60)
+k<-0
+q<-0
+s<-0
+
+
+for(j in 1:n) #loop over n call sequences
+  {
+  SC<-c(0.1, 0.9) # inital state
+  PC<-P%*%SC #probabilities from inital state
+  
+  for (i in 1:60) #loop over 60 time intervals
+    {
+      m[j,i] <- sample(c("k","q", "s"), 1, replace=T, prob=c(PC[1],PC[2] ,PC[3] )) #generates a sample from the 2-state model
+      SC<-SC%*%S #transition matrix for next time step
+      PC<-P%*%t(SC) #call probability for next time step
+    }
+}
+
+
+
+#find frequency of each call type at each time step
+for(j in 1:60) 
+{
+  for(i in 1:n)
+  {
+    if(m[i,j]=="k") k<-k+1
+    if(m[i,j]=="q") q<-q+1
+    if(m[i,j]=="s") s<-s+1
+  }
+  x[j, ]<-c(k,q,s)
+  k<-0
+  q<-0
+  s<-0
+}
+
+write.xlsx(x,"2state.xlsx") #write data to excel file
+
+
+
+#3-state model
+
+#define transition matrix:
+S <- matrix(c(0.8306,0.1255,0.0439, 0.1134, 0.8477, 0.0389, 0.0089, 0.0155, 0.9756), #transition matrix
+            nrow=3, ncol=3, byrow=TRUE)
+P<-matrix(c(0.0763, 0, 1, 0.0047, 1, 0, 0.9190, 0, 0), nrow=3, ncol=3, byrow=TRUE) #call probabilities
+
+x<-matrix(0,60,3) #initialise variables
+n<-99 #number of call sequences generated
+m<-matrix(0,n,60)
+k<-0
+q<-0
+s<-0
+SC<-c(0, 0.06  ,0.94) # inital state
+
+PC<-P%*%SC #probabilities from inital state
+
+for(j in 1:n) #generate n call sequences
+{
+  for (i in 1:60) #generate a call sequence
+  {
+    m[j,i] <- sample(c("k","q", "s"), 1, replace=T, prob=c(PC[1],PC[2] ,PC[3] )) #generates a sample from the 2-state model
+    SC<-SC%*%S #transition matrix for next time step
+    PC<-P%*%t(SC) #call probability for next time step
+  }
+  SC<-c(0, 0.06  ,0.94) # inital state
+  
+  PC<-P%*%SC #probabilities from inital state
+}
+  #find frequency of each call type at each time step
+  for(j in 1:60) 
+  {
+    for(i in 1:n)
+    {
+      if(m[i,j]=="k") k<-k+1
+      if(m[i,j]=="q") q<-q+1
+      if(m[i,j]=="s") s<-s+1
+    }
+    x[j, ]<-c(k,q,s)
+    k<-0
+    q<-0
+    s<-0
+  }
+
+
+write.xlsx(x,"3state.xlsx") #write data to excel file
+
+
+#4-state model
+
+#define transition matrix:
+S <- matrix(c(0.1104,0.0872,0.0128, 0.7896, 0.0902, 0.8254, 0.0644, 0.0200, 0.001, 0.3245,0.5950,0.0795, 0.0001, 0.0901, 0.0428, 0.8670), #transition matrix
+            nrow=4, ncol=4, byrow=TRUE)
+P<-matrix(c(0.9791, 0.0088, 0, 1, 0.0209, 0, 1, 0, 0, 0.9912,0,0), nrow=3, ncol=4, byrow=TRUE) #call probabilities
+
+x<-matrix(0,60,3) #initialise variables and matrix size 60x3
+n<-99 #number of call sequences generated
+m<-matrix(0,n,60)
+k<-0
+q<-0
+s<-0
+
+
+
+
+for(j in 1:n) #generate n call sequences
+{
+  SC<-c(1, 0  ,0.0391,0) # inital state
+  PC<-P%*%SC #probabilities from inital state
+  
+  for (i in 1:60) #generate a call sequence
+  {
+    m[j,i] <- sample(c("k","q", "s"), 1, replace=T, prob=c(PC[1],PC[2] ,PC[3] )) #generates a sample from the 2-state model
+    SC<-SC%*%S #transition matrix for next time step
+    PC<-P%*%t(SC) #call probability for next time step
+  }
+}
+
+#find frequency of each call type at each time step
+for(j in 1:60) 
+{
+  for(i in 1:n)
+  {
+    if(m[i,j]=="k") k<-k+1
+    if(m[i,j]=="q") q<-q+1
+    if(m[i,j]=="s") s<-s+1
+  }
+  x[j, ]<-c(k,q,s)
+  k<-0
+  q<-0
+  s<-0
+}
+
+
+write.xlsx(x,"4state.xlsx") #write data to excel file
+
+
+#5-state model
+
+#define transition matrix:
+S <- matrix(c(0.0002,0.0683,0.0226, 0, 0.9088, 0.0002, 0.8183, 0.0652, 0.0925, 0.0237,0,0.3223, 0.5926, 0.0858, 0, 0, 0.1523, 0.0665, 0.7813, 0, 0, 0.0222, 0.0073, 0.0806, 0.89), #transition matrix
+            nrow=5, ncol=5, byrow=TRUE)
+P<-matrix(c(0.9547, 0.0007, 0, 1, 1, 0.0453, 0, 1, 0, 0,0, 0.9993, 0, 0,0), nrow=3, ncol=5, byrow=TRUE) #call probabilities
+
+x<-matrix(0,60,3) #initialise variables and matrix size 60x3
+n<-99 #number of call sequences generated
+m<-matrix(0,n,60)
+k<-0
+q<-0
+s<-0
+
+
+
+
+for(j in 1:n) #generate n call sequences
+{
+  SC<-c(0, 0, 0.06, 0.94,0) # inital state
+  PC<-P%*%SC #probabilities from inital state
+  
+  for (i in 1:60) #generate a call sequence
+  {
+    m[j,i] <- sample(c("k","q", "s"), 1, replace=T, prob=c(PC[1],PC[2] ,PC[3] )) #generates a sample from the 2-state model
+    SC<-SC%*%S #transition matrix for next time step
+    PC<-P%*%t(SC) #call probability for next time step
+  }
+}
+
+#find frequency of each call type at each time step
+for(j in 1:60) 
+{
+  for(i in 1:n)
+  {
+    if(m[i,j]=="k") k<-k+1
+    if(m[i,j]=="q") q<-q+1
+    if(m[i,j]=="s") s<-s+1
+  }
+  x[j, ]<-c(k,q,s)
+  k<-0
+  q<-0
+  s<-0
+}
+
+
+write.xlsx(x,"5state.xlsx") #write data to excel file
+
+
+#6-state model
+
+#define transition matrix:
+S <- matrix(c(0,0.0678,0.0226, 0,0, 0.9096,0,0.8177,0.0540,0.0113,0.0818,
+              0.0352,0.0025,0.3954,0.5173,0,0.0355,0.0492,0,0.2727,0,0.6435,
+              0.0838,0,0,0.1812,0,0.0814,0.7374,0,0,0.0201,0,0.0044,0.0893,0.8862), #transition matrix
+            nrow=6, ncol=6, byrow=TRUE)
+P<-matrix(c(0.9543, 0, 0,0, 1, 1, 0.0457, 0, 1,1, 0, 0,0,1,0,0,0,0), nrow=3, ncol=6, byrow=TRUE) #call probabilities
+
+x<-matrix(0,60,3) #initialise variables and matrix size 60x3
+n<-99 #number of call sequences generated
+m<-matrix(0,n,60)
+k<-0
+q<-0
+s<-0
+
+
+for(j in 1:n) #generate n call sequences
+{
+  SC<-c(0, 0, 0,0.06, 0.94,0) # inital state
+  PC<-P%*%SC #probabilities from inital state
+  
+  for (i in 1:60) #generate a call sequence
+  {
+    m[j,i] <- sample(c("k","q", "s"), 1, replace=T, prob=c(PC[1],PC[2] ,PC[3] )) #generates a sample from the 2-state model
+    SC<-SC%*%S #transition matrix for next time step
+    PC<-P%*%t(SC) #call probability for next time step
+  }
+}
+
+#find frequency of each call type at each time step
+for(j in 1:60) 
+{
+  for(i in 1:n)
+  {
+    if(m[i,j]=="k") k<-k+1
+    if(m[i,j]=="q") q<-q+1
+    if(m[i,j]=="s") s<-s+1
+  }
+  x[j, ]<-c(k,q,s)
+  k<-0
+  q<-0
+  s<-0
+}
+
+
+write.xlsx(x,"6state.xlsx") #write data to excel file
